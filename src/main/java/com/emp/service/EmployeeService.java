@@ -6,11 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.emp.dto.EmployeeRequestDTO;
 import com.emp.dto.EmployeeResponseDTO;
+import com.emp.mapper.EmployeeMapper;
 import com.emp.model.Employee;
 import com.emp.repository.DepartmentRepository;
 import com.emp.repository.EmployeeRepository;
-
-import mapper.EmployeeMapper;
 
 @Service
 public class EmployeeService {

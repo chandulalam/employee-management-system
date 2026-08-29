@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.emp.dto.DepartmentRequestDTO;
+import com.emp.dto.DepartmentResponseDTO;
+import com.emp.mapper.DepartmentMapper;
 import com.emp.model.Department;
 import com.emp.repository.DepartmentRepository;
 
@@ -11,29 +14,44 @@ import com.emp.repository.DepartmentRepository;
 public class DepartmentService {
 
 	private final DepartmentRepository departmentRepository;
+	private final DepartmentMapper departmentMapper;
 	
-	public DepartmentService(DepartmentRepository departmentRepository) {
+	public DepartmentService(DepartmentMapper departmentMapper, DepartmentRepository departmentRepository) {
 		this.departmentRepository=departmentRepository;
+		this.departmentMapper=departmentMapper;
 	}
 	
-	public Department saveDeptDepartment(Department department) {
-		return departmentRepository.save(department);
-	}
-	
-	public Department getDeptDepartment(int id) {
-		return departmentRepository.findById(id).orElse(null);
-	}
-	
-	public List<Department> getAllDepartments(){
-		return departmentRepository.findAll();
-	}
-	
-	public Department updateDepartment(int id ,Department department) {
-		Department existingDepartment = departmentRepository.findById(id).orElse(null);
-		existingDepartment.setName(department.getName());
-		existingDepartment.setDescription(department.getDescription());
+	public DepartmentResponseDTO saveDeptDepartment(DepartmentRequestDTO departmentRequestDTO) {
 		
-		return departmentRepository.save(existingDepartment);
+		Department department = departmentMapper.departmentDtoToDepartment(departmentRequestDTO);
+		Department saveDepartment = departmentRepository.save(department);
+		
+		return departmentMapper.departmentToDepartmentResponse(saveDepartment);
+	}
+	
+	public DepartmentResponseDTO getDepartment(int id) {
+		
+		Department department = departmentRepository.findById(id).orElse(null);
+		return departmentMapper.departmentToDepartmentResponse(department);
+	}
+	
+	public List<DepartmentResponseDTO> getAllDepartments(){
+		 List<Department> allDepartments = departmentRepository.findAll();
+		return  allDepartments
+		 	.stream()
+		 	.map(departmentMapper::departmentToDepartmentResponse)
+		 	.toList();
+		 
+		 
+	}
+	
+	public DepartmentResponseDTO updateDepartment(int id ,DepartmentRequestDTO departmentRequestDTO) {
+		Department existingDepartment = departmentRepository.findById(id).orElse(null);
+		existingDepartment.setName(departmentRequestDTO.getName());
+		existingDepartment.setDescription(departmentRequestDTO.getDescription());
+		
+		 Department updatedDepartment = departmentRepository.save(existingDepartment);
+		 return departmentMapper.departmentToDepartmentResponse(updatedDepartment);
 	}
 	
 	public void deleteDepartment(int id) {

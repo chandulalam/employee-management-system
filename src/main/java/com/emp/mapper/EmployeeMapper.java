@@ -1,4 +1,4 @@
-package mapper;
+package com.emp.mapper;
 
 import org.springframework.stereotype.Component;
 
