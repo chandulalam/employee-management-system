@@ -4,34 +4,56 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.emp.dto.UserRequestDTO;
+import com.emp.dto.UserResponseDTO;
+import com.emp.mapper.UserMapper;
 import com.emp.model.User;
+import com.emp.repository.EmployeeRepository;
 import com.emp.repository.UserRepository;
 
 @Service
 public class UserService {
 
 	private final UserRepository userRepository;
-	public UserService(UserRepository userRepository) {
+	private final UserMapper userMapper;
+	private final EmployeeRepository employeeRepository;
+	public UserService(UserRepository userRepository,UserMapper userMapper,EmployeeRepository employeeRepository ) {
 		this.userRepository=userRepository;
+		this.userMapper=userMapper;
+		this.employeeRepository=employeeRepository;
 	}
 	
-	public User saveUser(User user) {
-		return userRepository.save(user);
-	}
-	public User getUserById(int id) {
-		return userRepository.findById(id).orElse(null);
-	}
-	public List<User> getAllUsers(){
-		return userRepository.findAll();
-	}
-	public User updateUser(int id ,User user) {
-		User existingUser = userRepository.findById(id).orElse(null);
-		existingUser.setUsername(user.getUsername());
-		existingUser.setRole(user.getRole());
-		existingUser.setPassword(user.getPassword());
-		existingUser.setEmployee(user.getEmployee());
+	public UserResponseDTO saveUser(UserRequestDTO userRequestDTO) {
 		
-		return userRepository.save(existingUser);
+		User user = userMapper.userDtoToUser(userRequestDTO);
+		user.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId()).orElse(null));
+		User saveUser = userRepository.save(user);
+		
+		return userMapper.userToUserResponse(saveUser);
+	}
+	public UserResponseDTO getUserById(int id) {
+		
+		User user = userRepository.findById(id).orElse(null);
+		return userMapper.userToUserResponse(user);
+	}
+	public List<UserResponseDTO> getAllUsers(){
+		
+		 List<User> allUsers = userRepository.findAll();
+		 
+		 return allUsers
+				 .stream()
+				 .map(userMapper::userToUserResponse)
+				 .toList();
+	}
+	public UserResponseDTO updateUser(int id ,UserRequestDTO userRequestDTO) {
+		User existingUser = userRepository.findById(id).orElse(null);
+		existingUser.setUsername(userRequestDTO.getUsername());
+		existingUser.setRole(userRequestDTO.getRole());
+		existingUser.setPassword(userRequestDTO.getPassword());
+		existingUser.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId()).orElse(null));
+		
+		userRepository.save(existingUser);
+		return userMapper.userToUserResponse(existingUser);
 	}
 	
 	public void deleteUser(int id) {
