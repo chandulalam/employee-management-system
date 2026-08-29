@@ -1,9 +1,12 @@
 package mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.emp.dto.EmployeeRequestDTO;
 import com.emp.dto.EmployeeResponseDTO;
 import com.emp.model.Employee;
 
+@Component
 public class EmployeeMapper {
 	
 	public Employee employeeDtoToEmployee(EmployeeRequestDTO employeeRequestDTO) {

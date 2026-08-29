@@ -4,47 +4,77 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.emp.dto.EmployeeRequestDTO;
+import com.emp.dto.EmployeeResponseDTO;
 import com.emp.model.Employee;
+import com.emp.repository.DepartmentRepository;
 import com.emp.repository.EmployeeRepository;
+
+import mapper.EmployeeMapper;
 
 @Service
 public class EmployeeService {
 	
-	  private final EmployeeRepository employeeRepository;
+	private final EmployeeMapper employeeMapper;
+    private final EmployeeRepository employeeRepository;
+	private final DepartmentRepository departmentRepository;
 
-	    public EmployeeService(EmployeeRepository employeeRepository) {
+	public EmployeeService(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository, EmployeeMapper employeeMapper) {
 	        this.employeeRepository = employeeRepository;
+	        this.departmentRepository=departmentRepository;
+			this.employeeMapper = employeeMapper;
 	    }
-
 	    
-	public Employee saveEmployee(Employee employee) {
+	  
+	    
+	public EmployeeResponseDTO saveEmployee(EmployeeRequestDTO employeeRequestDTO) {
 		
-		return employeeRepository.save(employee);
+		Employee employee = employeeMapper.employeeDtoToEmployee(employeeRequestDTO);
+		employee.setDepartment(departmentRepository.findById(employeeRequestDTO.getDepartmentId()).orElse(null));
+		
+		Employee savedEmployee = employeeRepository.save(employee);
+		
+	   return  employeeMapper.employeeToEmployeeResponse(savedEmployee);
+	   
 		
 	}
 	
-	public Employee getEmployee(int id) {
+	public EmployeeResponseDTO getEmployee(int id) {
 		
-		return employeeRepository.findById(id).orElse(null);
+		 Employee employee = employeeRepository.findById(id).orElse(null);
+		 
+		 return  employeeMapper.employeeToEmployeeResponse(employee);
+		 
 	}
 	
-	public List<Employee> getAllEmployees(){
-		return employeeRepository.findAll();
+	public List<EmployeeResponseDTO> getAllEmployees(){
+		
+		List<Employee> allEmployees = employeeRepository.findAll();
+		
+		return allEmployees
+				.stream()
+				.map(employeeMapper::employeeToEmployeeResponse)
+				.toList();
 	}
 	
-	public Employee updateEmployee(int id,Employee employee) {
+	public EmployeeResponseDTO updateEmployee(int id,EmployeeRequestDTO employeeRequestDTO) {
 		
 		Employee existingEmployee = employeeRepository.findById(id).orElse(null);
-		existingEmployee.setFirstName(employee.getFirstName());
-		existingEmployee.setLastName(employee.getLastName());
-		existingEmployee.setDepartment(employee.getDepartment());
-		existingEmployee.setSalary(employee.getSalary());
-		existingEmployee.setJoiningDate(employee.getJoiningDate());
-		existingEmployee.setEmail(employee.getEmail());
-		existingEmployee.setPhone(employee.getPhone());
-		existingEmployee.setStatus(employee.getStatus());
+		existingEmployee.setFirstName(employeeRequestDTO.getFirstName());
+		existingEmployee.setLastName(employeeRequestDTO.getLastName());
+		existingEmployee.setDepartment(departmentRepository.findById(employeeRequestDTO.getDepartmentId()).orElse(null));
+		existingEmployee.setSalary(employeeRequestDTO.getSalary());
+		existingEmployee.setJoiningDate(employeeRequestDTO.getJoiningDate());
+		existingEmployee.setEmail(employeeRequestDTO.getEmail());
+		existingEmployee.setPhone(employeeRequestDTO.getPhone());
+		existingEmployee.setStatus(employeeRequestDTO.getStatus());
 		
-		return employeeRepository.save(existingEmployee);	
+		Employee updatedEmployee = employeeRepository.save(existingEmployee);
+		
+		return employeeMapper.employeeToEmployeeResponse(updatedEmployee);
+		
+		 
+		
 	}
 	
 	public void deleteEmployee(int id) {

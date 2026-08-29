@@ -47,7 +47,4 @@ public class Employee {
 		this.department = department;
 	}
 
-	
-	
-	
 }
