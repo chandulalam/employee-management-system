@@ -15,6 +15,8 @@ import com.emp.dto.UserRequestDTO;
 import com.emp.dto.UserResponseDTO;
 import com.emp.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -26,7 +28,7 @@ public class UserController {
 	}
 
 	@PostMapping("/save")
-	public UserResponseDTO saveUser(@RequestBody UserRequestDTO userRequestDTO) {
+	public UserResponseDTO saveUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
 		return userService.saveUser(userRequestDTO);
 	}
 	
@@ -41,7 +43,7 @@ public class UserController {
 	}
 	
 	@PutMapping("/update/{id}")
-	public UserResponseDTO updateUser(@PathVariable int id,@RequestBody UserRequestDTO userRequestDTO) {
+	public UserResponseDTO updateUser(@PathVariable int id,@Valid @RequestBody UserRequestDTO userRequestDTO) {
 		return userService.updateUser(id, userRequestDTO);
 	}
 	

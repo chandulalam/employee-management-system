@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.emp.dto.EmployeeRequestDTO;
 import com.emp.dto.EmployeeResponseDTO;
+import com.emp.exception.DepartmentNotFoundException;
+import com.emp.exception.EmployeeNotFoundException;
 import com.emp.mapper.EmployeeMapper;
 import com.emp.model.Employee;
 import com.emp.repository.DepartmentRepository;
@@ -29,18 +31,24 @@ public class EmployeeService {
 	public EmployeeResponseDTO saveEmployee(EmployeeRequestDTO employeeRequestDTO) {
 		
 		Employee employee = employeeMapper.employeeDtoToEmployee(employeeRequestDTO);
-		employee.setDepartment(departmentRepository.findById(employeeRequestDTO.getDepartmentId()).orElse(null));
-		
+		employee.setDepartment(departmentRepository.findById(employeeRequestDTO.getDepartmentId())
+				.orElseThrow(()-> 
+					new DepartmentNotFoundException("Department not found with id: " + employeeRequestDTO.getDepartmentId()) )
+				);
+					
 		Employee savedEmployee = employeeRepository.save(employee);
 		
 	   return  employeeMapper.employeeToEmployeeResponse(savedEmployee);
-	   
-		
+	   	
 	}
 	
 	public EmployeeResponseDTO getEmployee(int id) {
 		
-		 Employee employee = employeeRepository.findById(id).orElse(null);
+		Employee employee = employeeRepository.findById(id)
+		        .orElseThrow(() ->
+		                new EmployeeNotFoundException(
+		                        "Employee not found with id: " + id
+		                ));
 		 
 		 return  employeeMapper.employeeToEmployeeResponse(employee);
 		 
@@ -58,10 +66,19 @@ public class EmployeeService {
 	
 	public EmployeeResponseDTO updateEmployee(int id,EmployeeRequestDTO employeeRequestDTO) {
 		
-		Employee existingEmployee = employeeRepository.findById(id).orElse(null);
+		Employee existingEmployee =employeeRepository.findById(id)
+        .orElseThrow(() ->
+                new EmployeeNotFoundException(
+                        "Employee not found with id: " + id
+                ));
+		
+		
 		existingEmployee.setFirstName(employeeRequestDTO.getFirstName());
 		existingEmployee.setLastName(employeeRequestDTO.getLastName());
-		existingEmployee.setDepartment(departmentRepository.findById(employeeRequestDTO.getDepartmentId()).orElse(null));
+		existingEmployee.setDepartment(departmentRepository.findById(employeeRequestDTO.getDepartmentId())
+				.orElseThrow(()-> new DepartmentNotFoundException("Department not found with id:  "+employeeRequestDTO.getDepartmentId())
+				)
+				);
 		existingEmployee.setSalary(employeeRequestDTO.getSalary());
 		existingEmployee.setJoiningDate(employeeRequestDTO.getJoiningDate());
 		existingEmployee.setEmail(employeeRequestDTO.getEmail());

@@ -15,18 +15,20 @@ import com.emp.dto.EmployeeRequestDTO;
 import com.emp.dto.EmployeeResponseDTO;
 import com.emp.service.EmployeeService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
 	
-	final EmployeeService employeeService;
+	private final EmployeeService employeeService;
 
 	EmployeeController(EmployeeService employeeService) {
 		this.employeeService = employeeService;
 	}
 	
 	@PostMapping("/save")
-	public EmployeeResponseDTO saveEmployee(@RequestBody EmployeeRequestDTO employeeRequestDTO) {
+	public EmployeeResponseDTO saveEmployee(@Valid @RequestBody EmployeeRequestDTO employeeRequestDTO) {
 		return employeeService.saveEmployee(employeeRequestDTO);
 	}
 	
@@ -41,7 +43,7 @@ public class EmployeeController {
 	}
 	
 	@PutMapping("/update/{id}")
-	public EmployeeResponseDTO updateEmployees(@PathVariable int id ,@RequestBody EmployeeRequestDTO employeeRequestDTO) {
+	public EmployeeResponseDTO updateEmployees(@PathVariable int id ,@Valid @RequestBody EmployeeRequestDTO employeeRequestDTO) {
 		return employeeService.updateEmployee(id, employeeRequestDTO);
 	}
 	

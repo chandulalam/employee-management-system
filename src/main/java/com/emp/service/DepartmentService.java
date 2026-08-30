@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.emp.dto.DepartmentRequestDTO;
 import com.emp.dto.DepartmentResponseDTO;
+import com.emp.exception.DepartmentNotFoundException;
 import com.emp.mapper.DepartmentMapper;
 import com.emp.model.Department;
 import com.emp.repository.DepartmentRepository;
@@ -31,7 +32,12 @@ public class DepartmentService {
 	
 	public DepartmentResponseDTO getDepartment(int id) {
 		
-		Department department = departmentRepository.findById(id).orElse(null);
+		Department department = departmentRepository.findById(id)
+		.orElseThrow(()-> 
+			new DepartmentNotFoundException("Department not found with id: " + id) );
+		
+		//Department department = departmentRepository.findById(id).orElse(null);
+		
 		return departmentMapper.departmentToDepartmentResponse(department);
 	}
 	
@@ -40,13 +46,14 @@ public class DepartmentService {
 		return  allDepartments
 		 	.stream()
 		 	.map(departmentMapper::departmentToDepartmentResponse)
-		 	.toList();
-		 
-		 
+		 	.toList();	 
 	}
 	
 	public DepartmentResponseDTO updateDepartment(int id ,DepartmentRequestDTO departmentRequestDTO) {
-		Department existingDepartment = departmentRepository.findById(id).orElse(null);
+		Department existingDepartment = departmentRepository.findById(id)
+				.orElseThrow(()-> 
+				new DepartmentNotFoundException("Department not found with id: " + id) );
+		
 		existingDepartment.setName(departmentRequestDTO.getName());
 		existingDepartment.setDescription(departmentRequestDTO.getDescription());
 		

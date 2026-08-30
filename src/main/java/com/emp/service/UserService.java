@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.emp.dto.UserRequestDTO;
 import com.emp.dto.UserResponseDTO;
+import com.emp.exception.EmployeeNotFoundException;
+import com.emp.exception.UserNotFoundException;
 import com.emp.mapper.UserMapper;
 import com.emp.model.User;
 import com.emp.repository.EmployeeRepository;
@@ -26,14 +28,21 @@ public class UserService {
 	public UserResponseDTO saveUser(UserRequestDTO userRequestDTO) {
 		
 		User user = userMapper.userDtoToUser(userRequestDTO);
-		user.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId()).orElse(null));
+		user.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId())
+				.orElseThrow(()->new EmployeeNotFoundException("Employee not found with id:"+userRequestDTO.getEmployeeId())
+						));
+		
+		
 		User saveUser = userRepository.save(user);
 		
 		return userMapper.userToUserResponse(saveUser);
 	}
 	public UserResponseDTO getUserById(int id) {
 		
-		User user = userRepository.findById(id).orElse(null);
+		User user =  userRepository.findById(id)
+				.orElseThrow(()->new UserNotFoundException("User not found with id: "+id)
+				);
+		
 		return userMapper.userToUserResponse(user);
 	}
 	public List<UserResponseDTO> getAllUsers(){
@@ -46,11 +55,16 @@ public class UserService {
 				 .toList();
 	}
 	public UserResponseDTO updateUser(int id ,UserRequestDTO userRequestDTO) {
-		User existingUser = userRepository.findById(id).orElse(null);
+		User existingUser = userRepository.findById(id)
+				.orElseThrow(()->new UserNotFoundException("User not found with id: "+id)
+				);
 		existingUser.setUsername(userRequestDTO.getUsername());
 		existingUser.setRole(userRequestDTO.getRole());
 		existingUser.setPassword(userRequestDTO.getPassword());
-		existingUser.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId()).orElse(null));
+		existingUser.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId())
+				.orElseThrow(()->new EmployeeNotFoundException("Employee not found with id:"+userRequestDTO.getEmployeeId())
+						)
+				);
 		
 		userRepository.save(existingUser);
 		return userMapper.userToUserResponse(existingUser);

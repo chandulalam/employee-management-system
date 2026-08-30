@@ -15,6 +15,8 @@ import com.emp.dto.DepartmentRequestDTO;
 import com.emp.dto.DepartmentResponseDTO;
 import com.emp.service.DepartmentService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/dept")
 public class DepartmentController {
@@ -26,7 +28,7 @@ public class DepartmentController {
 	}
 	
 	@PostMapping("/save")
-	public DepartmentResponseDTO saveDepartment(@RequestBody DepartmentRequestDTO departmentRequestDTO ) {
+	public DepartmentResponseDTO saveDepartment(@Valid @RequestBody DepartmentRequestDTO departmentRequestDTO ) {
 		return departmentService.saveDeptDepartment(departmentRequestDTO);
 	}
 	
@@ -41,7 +43,7 @@ public class DepartmentController {
 	}
 	
 	@PutMapping("/update/{id}")
-	public DepartmentResponseDTO updateDepartment(@PathVariable int id, @RequestBody DepartmentRequestDTO departmentRequestDTO) {
+	public DepartmentResponseDTO updateDepartment(@PathVariable int id,@Valid @RequestBody DepartmentRequestDTO departmentRequestDTO) {
 		return departmentService.updateDepartment(id, departmentRequestDTO);
 	}
 	
