@@ -34,6 +34,10 @@ public class EmployeeMapper {
 		response.setStatus(emp.getStatus());
 		response.setDepartmentId(emp.getDepartment().getId());
 		
+		if (emp.getDepartment() != null) {
+	        response.setDepartmentId(emp.getDepartment().getId());
+	    }
+		
 		return response;
 	}
 	

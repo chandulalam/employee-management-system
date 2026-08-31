@@ -10,9 +10,18 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.emp.security.JwtAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
+	
+	private final JwtAuthenticationFilter authenticationFilter;
+
+	public SecurityConfig(JwtAuthenticationFilter authenticationFilter) {
+		this.authenticationFilter = authenticationFilter;
+	}
 	
 	@Bean
 	public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,PasswordEncoder passwordEncoder) {
@@ -36,11 +45,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)
             throws Exception {
 
-        httpSecurity
+        httpSecurity.addFilterBefore(
+        		authenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+ )
+        
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            );
+            	    .requestMatchers("/user/login").permitAll()
+            	    .anyRequest().authenticated()
+            	);
 
         return httpSecurity.build();
     }
