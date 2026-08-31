@@ -5,4 +5,6 @@ import com.emp.model.User;
 
 public interface UserRepository extends JpaRepository<User, Integer>{
 
+	User findUserByUsername(String username);
+
 }

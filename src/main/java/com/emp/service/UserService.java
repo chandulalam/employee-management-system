@@ -2,6 +2,7 @@ package com.emp.service;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.emp.dto.UserRequestDTO;
@@ -19,10 +20,14 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
 	private final EmployeeRepository employeeRepository;
-	public UserService(UserRepository userRepository,UserMapper userMapper,EmployeeRepository employeeRepository ) {
+	private final PasswordEncoder passwordEncoder;
+	
+	public UserService(UserRepository userRepository,UserMapper userMapper,EmployeeRepository employeeRepository 
+			,PasswordEncoder passwordEncoder) {
 		this.userRepository=userRepository;
 		this.userMapper=userMapper;
 		this.employeeRepository=employeeRepository;
+		this.passwordEncoder=passwordEncoder;
 	}
 	
 	public UserResponseDTO saveUser(UserRequestDTO userRequestDTO) {
@@ -31,6 +36,7 @@ public class UserService {
 		user.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId())
 				.orElseThrow(()->new EmployeeNotFoundException("Employee not found with id:"+userRequestDTO.getEmployeeId())
 						));
+		user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 		
 		
 		User saveUser = userRepository.save(user);
@@ -60,7 +66,7 @@ public class UserService {
 				);
 		existingUser.setUsername(userRequestDTO.getUsername());
 		existingUser.setRole(userRequestDTO.getRole());
-		existingUser.setPassword(userRequestDTO.getPassword());
+		existingUser.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 		existingUser.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId())
 				.orElseThrow(()->new EmployeeNotFoundException("Employee not found with id:"+userRequestDTO.getEmployeeId())
 						)
