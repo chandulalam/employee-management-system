@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emp.dto.EmployeeProfileUpdateDTO;
 import com.emp.dto.EmployeeRequestDTO;
 import com.emp.dto.EmployeeResponseDTO;
 import com.emp.service.EmployeeService;
@@ -50,6 +51,18 @@ public class EmployeeController {
 	@DeleteMapping("/delete/{id}")
 	public void delete(@PathVariable int id) {
 		employeeService.deleteEmployee(id);
+	}
+	
+	@GetMapping("/profile")
+	public EmployeeResponseDTO getMyProfile() {
+	    return employeeService.getMyEmployeeProfile();
+	}
+	
+	@PutMapping("/profile")
+	public EmployeeResponseDTO updateMyProfile(
+	        @Valid @RequestBody EmployeeProfileUpdateDTO dto) {
+
+	    return employeeService.updateMyProfile(dto);
 	}
 
 }

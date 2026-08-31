@@ -52,7 +52,37 @@ public class SecurityConfig {
         
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-            	    .requestMatchers("/user/login").permitAll()
+
+            	    .requestMatchers("/user/login", "/user/register").permitAll()
+
+            	    .requestMatchers(
+            	        "/user/all",
+            	        "/user/update/**",
+            	        "/user/delete/**"
+            	    ).hasRole("ADMIN")
+
+            	    .requestMatchers("/user/profile/**").authenticated()
+
+            	    .requestMatchers(
+            	        "/dept/save",
+            	        "/dept/update/**",
+            	        "/dept/delete/**"
+            	    ).hasRole("ADMIN")
+            	    .requestMatchers(
+            	        "/dept/get/**",
+            	        "/dept/all"
+            	    ).authenticated()
+            	    
+            	    .requestMatchers(
+            	    	    "/employee/save",
+            	    	    "/employee/get/**",
+            	    	    "/employee/all",
+            	    	    "/employee/update/**",
+            	    	    "/employee/delete/**"
+            	    	).hasRole("ADMIN")
+            	    
+            	    .requestMatchers("/employee/profile/**").authenticated()
+
             	    .anyRequest().authenticated()
             	);
 

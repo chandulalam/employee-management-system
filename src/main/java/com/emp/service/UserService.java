@@ -2,6 +2,7 @@ package com.emp.service;
 
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import com.emp.dto.UserResponseDTO;
 import com.emp.exception.EmployeeNotFoundException;
 import com.emp.exception.UserNotFoundException;
 import com.emp.mapper.UserMapper;
+import com.emp.model.Role;
 import com.emp.model.User;
 import com.emp.repository.EmployeeRepository;
 import com.emp.repository.UserRepository;
@@ -33,6 +35,7 @@ public class UserService {
 	public UserResponseDTO saveUser(UserRequestDTO userRequestDTO) {
 		
 		User user = userMapper.userDtoToUser(userRequestDTO);
+		user.setRole(Role.EMPLOYEE);
 		user.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId())
 				.orElseThrow(()->new EmployeeNotFoundException("Employee not found with id:"+userRequestDTO.getEmployeeId())
 						));
@@ -65,7 +68,7 @@ public class UserService {
 				.orElseThrow(()->new UserNotFoundException("User not found with id: "+id)
 				);
 		existingUser.setUsername(userRequestDTO.getUsername());
-		existingUser.setRole(userRequestDTO.getRole());
+		
 		existingUser.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 		existingUser.setEmployee(employeeRepository.findById(userRequestDTO.getEmployeeId())
 				.orElseThrow(()->new EmployeeNotFoundException("Employee not found with id:"+userRequestDTO.getEmployeeId())
@@ -76,7 +79,60 @@ public class UserService {
 		return userMapper.userToUserResponse(existingUser);
 	}
 	
+	
 	public void deleteUser(int id) {
-		userRepository.deleteById(id);
+		
+		User user =  userRepository.findById(id)
+				.orElseThrow(()->new UserNotFoundException("User not found with id: "+id)
+				);
+		
+		userRepository.delete(user);
 	}
+	
+	
+	public UserResponseDTO getMyProfile() {
+
+	    String username =
+	            SecurityContextHolder.getContext()
+	                    .getAuthentication()
+	                    .getName();
+
+	    User user = userRepository.findUserByUsername(username);
+
+	    if (user == null) {
+	        throw new UserNotFoundException(
+	                "User not found with username: " + username
+	        );
+	    }
+
+	    return userMapper.userToUserResponse(user);
+	}
+	
+	public UserResponseDTO updateMyProfile(UserRequestDTO userRequestDTO) {
+
+	    String username =
+	            SecurityContextHolder.getContext()
+	                    .getAuthentication()
+	                    .getName();
+
+	    User existingUser =
+	            userRepository.findUserByUsername(username);
+
+	    if (existingUser == null) {
+	        throw new UserNotFoundException(
+	                "User not found with username: " + username
+	        );
+	    }
+
+	    existingUser.setUsername(userRequestDTO.getUsername());
+
+	    existingUser.setPassword(
+	            passwordEncoder.encode(userRequestDTO.getPassword())
+	    );
+
+	    User updatedUser = userRepository.save(existingUser);
+
+	    return userMapper.userToUserResponse(updatedUser);
+	}
+	
 }

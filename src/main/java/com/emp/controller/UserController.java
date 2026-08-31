@@ -27,7 +27,7 @@ public class UserController {
 		this.userService = userService;
 	}
 
-	@PostMapping("/save")
+	@PostMapping("/register")
 	public UserResponseDTO saveUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
 		return userService.saveUser(userRequestDTO);
 	}
@@ -51,4 +51,18 @@ public class UserController {
 	public void delete(@PathVariable int id) {
 		userService.deleteUser(id);
 	}
+	
+	@GetMapping("/profile")
+	public UserResponseDTO getMyProfile() {
+	    return userService.getMyProfile();
+	}
+	
+	@PutMapping("/profile")
+	public UserResponseDTO updateMyProfile(
+	        @Valid @RequestBody UserRequestDTO userRequestDTO) {
+
+	    return userService.updateMyProfile(userRequestDTO);
+	}
+	
+	
 }

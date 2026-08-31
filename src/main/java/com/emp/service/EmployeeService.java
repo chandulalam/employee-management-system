@@ -2,16 +2,21 @@ package com.emp.service;
 
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.emp.dto.EmployeeProfileUpdateDTO;
 import com.emp.dto.EmployeeRequestDTO;
 import com.emp.dto.EmployeeResponseDTO;
 import com.emp.exception.DepartmentNotFoundException;
 import com.emp.exception.EmployeeNotFoundException;
+import com.emp.exception.UserNotFoundException;
 import com.emp.mapper.EmployeeMapper;
 import com.emp.model.Employee;
+import com.emp.model.User;
 import com.emp.repository.DepartmentRepository;
 import com.emp.repository.EmployeeRepository;
+import com.emp.repository.UserRepository;
 
 @Service
 public class EmployeeService {
@@ -19,11 +24,13 @@ public class EmployeeService {
 	private final EmployeeMapper employeeMapper;
     private final EmployeeRepository employeeRepository;
 	private final DepartmentRepository departmentRepository;
+	private final  UserRepository userRepository;
 
-	public EmployeeService(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository, EmployeeMapper employeeMapper) {
+	public EmployeeService(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository, EmployeeMapper employeeMapper, UserRepository userRepository) {
 	        this.employeeRepository = employeeRepository;
 	        this.departmentRepository=departmentRepository;
 			this.employeeMapper = employeeMapper;
+		this.userRepository = userRepository;
 	    }
 	    
 	  
@@ -94,7 +101,72 @@ public class EmployeeService {
 	}
 	
 	public void deleteEmployee(int id) {
-		employeeRepository.deleteById(id);
+		
+		 Employee employee = employeeRepository.findById(id)
+		            .orElseThrow(() ->
+		                    new EmployeeNotFoundException(
+		                            "Employee not found with id: " + id
+		                    ));
+		
+		employeeRepository.delete(employee);
+	}
+	
+	public EmployeeResponseDTO getMyEmployeeProfile() {
+
+	    String username = SecurityContextHolder.getContext()
+	            .getAuthentication()
+	            .getName();
+
+	    User user = userRepository.findUserByUsername(username);
+
+	    if (user == null) {
+	        throw new UserNotFoundException(
+	                "User not found with username: " + username
+	        );
+	    }
+
+	    Employee employee = user.getEmployee();
+
+	    if (employee == null) {
+	        throw new EmployeeNotFoundException(
+	                "Employee profile not found for user: " + username
+	        );
+	    }
+
+	    return employeeMapper.employeeToEmployeeResponse(employee);
+	}
+	
+	public EmployeeResponseDTO updateMyProfile(
+	        EmployeeProfileUpdateDTO dto) {
+
+	    String username = SecurityContextHolder.getContext()
+	            .getAuthentication()
+	            .getName();
+
+	    User user = userRepository.findUserByUsername(username);
+
+	    if (user == null) {
+	        throw new UserNotFoundException(
+	                "User not found with username: " + username
+	        );
+	    }
+
+	    Employee employee = user.getEmployee();
+
+	    if (employee == null) {
+	        throw new EmployeeNotFoundException(
+	                "Employee profile not found for user: " + username
+	        );
+	    }
+
+	    employee.setFirstName(dto.getFirstName());
+	    employee.setLastName(dto.getLastName());
+	    employee.setEmail(dto.getEmail());
+	    employee.setPhone(dto.getPhone());
+
+	    Employee updatedEmployee = employeeRepository.save(employee);
+
+	    return employeeMapper.employeeToEmployeeResponse(updatedEmployee);
 	}
 	
 }
