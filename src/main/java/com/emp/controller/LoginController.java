@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.emp.dto.LoginRequestDTO;
 import com.emp.security.AuthenticationService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 @RestController
@@ -20,6 +21,10 @@ public class LoginController {
 		this.authenticationService = authenticationService;
 	}
 
+	@Operation(
+			summary = "User login",
+			description = "Public endpoint for user authentication. Returns JWT token."
+	)
 	@PostMapping("/login")
 	public String userLogin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
 		return authenticationService.authenticate(loginRequestDTO);
