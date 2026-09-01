@@ -16,10 +16,12 @@ import com.emp.dto.EmployeeRequestDTO;
 import com.emp.dto.EmployeeResponseDTO;
 import com.emp.service.EmployeeService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/employee")
+@SecurityRequirement(name = "bearerAuth")
 public class EmployeeController {
 	
 	private final EmployeeService employeeService;

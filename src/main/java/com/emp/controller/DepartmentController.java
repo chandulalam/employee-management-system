@@ -15,10 +15,12 @@ import com.emp.dto.DepartmentRequestDTO;
 import com.emp.dto.DepartmentResponseDTO;
 import com.emp.service.DepartmentService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/dept")
+@SecurityRequirement(name = "bearerAuth")
 public class DepartmentController {
 	
 	private final DepartmentService departmentService;

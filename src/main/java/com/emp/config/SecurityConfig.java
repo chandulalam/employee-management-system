@@ -14,6 +14,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.emp.security.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 public class SecurityConfig {
 	
@@ -41,51 +43,70 @@ public class SecurityConfig {
 	
 	
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)
-            throws Exception {
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)
+	        throws Exception {
 
-        httpSecurity.addFilterBefore(
-        		authenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
- )
-        
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
+	    httpSecurity
+	        .addFilterBefore(
+	            authenticationFilter,
+	            UsernamePasswordAuthenticationFilter.class
+	        )
 
-            	    .requestMatchers("/user/login", "/user/register").permitAll()
+	        .csrf(csrf -> csrf.disable())
 
-            	    .requestMatchers(
-            	        "/user/all",
-            	        "/user/update/**",
-            	        "/user/delete/**"
-            	    ).hasRole("ADMIN")
+	        .exceptionHandling(exception -> exception
+	            .authenticationEntryPoint((request, response, authException) -> {
+	                response.sendError(
+	                    HttpServletResponse.SC_UNAUTHORIZED,
+	                    "Unauthorized"
+	                );
+	            })
+	        )
 
-            	    .requestMatchers("/user/profile/**").authenticated()
+	        .authorizeHttpRequests(auth -> auth
 
-            	    .requestMatchers(
-            	        "/dept/save",
-            	        "/dept/update/**",
-            	        "/dept/delete/**"
-            	    ).hasRole("ADMIN")
-            	    .requestMatchers(
-            	        "/dept/get/**",
-            	        "/dept/all"
-            	    ).authenticated()
-            	    
-            	    .requestMatchers(
-            	    	    "/employee/save",
-            	    	    "/employee/get/**",
-            	    	    "/employee/all",
-            	    	    "/employee/update/**",
-            	    	    "/employee/delete/**"
-            	    	).hasRole("ADMIN")
-            	    
-            	    .requestMatchers("/employee/profile/**").authenticated()
+	            .requestMatchers(
+	                "/user/login",
+	                "/user/register",
+	                "/swagger-ui/**",
+	                "/v3/api-docs/**"
+	            ).permitAll()
 
-            	    .anyRequest().authenticated()
-            	);
+	            .requestMatchers(
+	                "/user/all",
+	                "/user/update/**",
+	                "/user/delete/**"
+	            ).hasRole("ADMIN")
 
-        return httpSecurity.build();
-    }
+	            .requestMatchers("/user/profile/**")
+	                .authenticated()
+
+	            .requestMatchers(
+	                "/dept/save",
+	                "/dept/update/**",
+	                "/dept/delete/**"
+	            ).hasRole("ADMIN")
+
+	            .requestMatchers(
+	                "/dept/get/**",
+	                "/dept/all"
+	            ).authenticated()
+
+	            .requestMatchers(
+	                "/employee/save",
+	                "/employee/get/**",
+	                "/employee/all",
+	                "/employee/update/**",
+	                "/employee/delete/**"
+	            ).hasRole("ADMIN")
+
+	            .requestMatchers("/employee/profile/**")
+	                .authenticated()
+
+	            .anyRequest().authenticated()
+	        );
+
+	    return httpSecurity.build();
+	}
 }

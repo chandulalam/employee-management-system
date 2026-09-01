@@ -15,10 +15,12 @@ import com.emp.dto.UserRequestDTO;
 import com.emp.dto.UserResponseDTO;
 import com.emp.service.UserService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/user")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 	
 	private final UserService userService;
@@ -63,6 +65,7 @@ public class UserController {
 
 	    return userService.updateMyProfile(userRequestDTO);
 	}
+	
 	
 	
 }
